@@ -14,9 +14,9 @@ const MainContainer = styled.div`
 
 const ImageContainer = styled.div`
   width: 50%;
-  margin: 0 auto;
+  margin: 0 10%;
 
-  @media (max-width: 1400px) {
+  @media (max-width: 900px) {
     width: 80%;
   }
 `

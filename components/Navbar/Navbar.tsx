@@ -1,155 +1,175 @@
 import { useState } from 'react'
-import { AppBar, Container, Toolbar, Typography, Box, IconButton, Menu, MenuItem, Button, Tooltip, Avatar } from "@mui/material"
-import AdbIcon from '@mui/icons-material/Adb'
-import MenuIcon from '@mui/icons-material/Menu'
+import {
+  createStyles,
+  Header,
+  Container,
+  Anchor,
+  Group,
+  Burger,
+} from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+import VercelLogo from 'public/assets/vercel.svg'
+import Link from 'next/link'
+import Image from 'next/image'
 
-const Navbar = () => {
+const HEADER_HEIGHT = 84
 
-  const pages = ['Products', 'Pricing', 'Blog']
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
-  
-  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
+const useStyles = createStyles((theme) => ({
+  header: {
+    backgroundColor: theme.fn.variant({
+      variant: 'filled',
+      color: 'gray',
+    }).background,
+    borderBottom: 0,
+    position: 'sticky',
+  },
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
+  inner: {
+    height: HEADER_HEIGHT,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+  burger: {
+    [theme.fn.largerThan('sm')]: {
+      display: 'none',
+    },
+  },
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-  
+  links: {
+    paddingTop: theme.spacing.lg,
+    height: HEADER_HEIGHT,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+
+    [theme.fn.smallerThan('sm')]: {
+      display: 'none',
+    },
+  },
+
+  mainLinks: {
+    marginRight: -theme.spacing.sm,
+  },
+
+  mainLink: {
+    textTransform: 'uppercase',
+    fontSize: 13,
+    color: theme.white,
+    padding: `7px ${theme.spacing.sm}px`,
+    fontWeight: 700,
+    borderBottom: '2px solid transparent',
+    transition: 'border-color 100ms ease, opacity 100ms ease',
+    opacity: 0.9,
+    borderTopRightRadius: theme.radius.sm,
+    borderTopLeftRadius: theme.radius.sm,
+
+    '&:hover': {
+      opacity: 1,
+      textDecoration: 'none',
+    },
+  },
+
+  secondaryLink: {
+    color: theme.colors[theme.primaryColor][0],
+    fontSize: theme.fontSizes.xs,
+    textTransform: 'uppercase',
+    transition: 'color 100ms ease',
+
+    '&:hover': {
+      color: theme.white,
+      textDecoration: 'none',
+    },
+  },
+
+  mainLinkActive: {
+    color: theme.white,
+    opacity: 1,
+    borderBottomColor:
+      theme.colorScheme === 'dark'
+        ? theme.white
+        : theme.colors[theme.primaryColor][5],
+    backgroundColor: theme.fn.lighten(
+      theme.fn.variant({ variant: 'filled', color: 'gray' })
+        .background,
+      0.1,
+    ),
+  },
+
+  imageContainer: {
+    width: '10%',
+  },
+}))
+
+interface LinkProps {
+  label: string
+  link: string
+}
+
+interface DoubleHeaderProps {
+  mainLinks: LinkProps[]
+  userLinks: LinkProps[]
+}
+
+const Navbar = ({ mainLinks, userLinks }: DoubleHeaderProps) => {
+  const [opened, { toggle }] = useDisclosure(false)
+  const { classes, cx } = useStyles()
+  const [active, setActive] = useState(0)
+
+  const mainItems = mainLinks.map((item, index) => (
+    <Link key={item.label} href={item.link} passHref>
+      <Anchor<'a'>
+        className={cx(classes.mainLink, {
+          [classes.mainLinkActive]: index === active,
+        })}
+        onClick={() => {
+          setActive(index)
+        }}
+      >
+        {item.label}
+      </Anchor>
+    </Link>
+  ))
+
+  const secondaryItems = userLinks.map((item) => (
+    <Link key={item.label} href={item.link} passHref>
+      <Anchor<'a'>
+        className={classes.secondaryLink}
+      >
+        {item.label}
+      </Anchor>
+    </Link>
+  ))
+
   return (
-    <>
-      <AppBar position="static"  style={{ background: 'transparent', boxShadow: 'none'}}>
-        <Container maxWidth="xl">
-          <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.3rem',
-                color: 'inherit',
-                textDecoration: 'none',
-              }}
-            >
-              LOGO
-            </Typography>
+    <Header height={HEADER_HEIGHT} className={classes.header}>
+      <Container className={classes.inner}>
+        <div className={classes.imageContainer} style={{ color: '#fff'}}>
+          <Image
+            src={VercelLogo}
+            width={130}
+            priority
+            layout="responsive"
+            alt="Vercel Image"
+          />
+        </div>
 
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit"
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: 'block', md: 'none' },
-                }}
-              >
-                {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href=""
-              sx={{
-                mr: 2,
-                display: { xs: 'flex', md: 'none' },
-                flexGrow: 1,
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.3rem',
-                color: 'inherit',
-                textDecoration: 'none',
-              }}
-            >
-              LOGO
-            </Typography>
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {pages.map((page) => (
-                <Button
-                  key={page}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
-                >
-                  {page}
-                </Button>
-              ))}
-            </Box>
-
-            <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: '45px' }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
-    </>
+        <div className={classes.links}>
+          <Group position="right">{secondaryItems}</Group>
+          <Group spacing={0} position="right" className={classes.mainLinks}>
+            {mainItems}
+          </Group>
+        </div>
+        <Burger
+          opened={opened}
+          onClick={toggle}
+          className={classes.burger}
+          size="sm"
+          color="#fff"
+        />
+      </Container>
+    </Header>
   )
 }
 
